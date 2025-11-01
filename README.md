@@ -1,135 +1,145 @@
-Jumbled Frames Reconstruction Challenge
-Overview
+# Jumbled Frames Reconstruction Challenge
 
-This project reconstructs a shuffled video by restoring its correct frame sequence using image similarity analysis and a greedy ordering approach. The challenge involves a 10-second, 1080p, 30 FPS video whose 300 frames have been randomly reordered. The goal is to produce a sequence as close as possible to the original continuous recording.
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)]()
+[![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)]()
 
-Problem Description
+## Overview
+This project reconstructs a shuffled video by restoring its correct frame sequence using image similarity analysis and an optimized greedy approach. The input consists of 300 shuffled frames extracted from a continuous 10-second, 1080p, 30 FPS video. The objective is to reassemble the frames into the correct order without any prior reference to the original sequence.
 
-Input: 300 unordered frames extracted from a single-shot video clip
+---
 
-Output: A reconstructed .mp4 video with the most likely correct frame order
+## Problem Description
+* **Input:** 300 unordered frames extracted from a single-shot video  
+* **Output:** Reconstructed `.mp4` video with most likely correct temporal order  
+* **Constraints:** No scene cuts, no access to original sequence  
+* **Evaluation Metrics:**  
+  * Frame-wise similarity  
+  * Execution speed and performance optimization  
+  * Algorithm design and innovation  
+  * Code quality and documentation  
 
-Constraint: No prior knowledge of true ordering and no scene cuts
+---
 
-Evaluation: Accuracy, efficiency, innovation, and clarity of implementation
+## System Workflow
 
-Algorithm Explanation
-1. Frame Extraction and Preprocessing
+```
+Jumbled Video
+      │
+      ▼
+Frame Extraction  →  Preprocessing (Resize + Grayscale)
+      │
+      ▼
+Similarity Matrix (SSIM + Parallel Processing)
+      │
+      ▼
+Greedy Ordering Strategy
+      │
+      ▼
+Final Video Reconstruction (Full Resolution)
+```
 
-All frames are first converted to grayscale and downscaled to a lower resolution.
-Purpose:
+---
 
-Speed up similarity calculations
+## Algorithm Explanation
 
-Reduce memory usage
+### 1. Preprocessing
+Each input frame is:
+* Converted to grayscale  
+* Downscaled to reduce memory usage  
+* Maintains motion and structure for similarity comparison  
 
-Retain structural and motion continuity cues
+### 2. Similarity Computation (SSIM)
+* Structural Similarity Index Measure used to compare each frame pair  
+* If SSIM fails due to uniform regions, normalized cross-correlation is used as fallback  
 
-The original full-resolution frames remain untouched for final reconstruction.
+**Performance optimizations:**
+* Store only upper triangular similarity computations  
+* Utilize multiprocessing across available CPU cores  
+* Construct a symmetric NxN similarity matrix  
 
-2. Similarity Computation (SSIM-Based)
+**Similarity score:**
+* Range: −1 to +1  
+* Higher value indicates frames closer in temporal order  
 
-This step determines how visually close each frame is to every other frame.
-The Structural Similarity Index Measure (SSIM) compares:
+### 3. Greedy Frame Ordering Strategy
+**Assumption:** Temporally adjacent frames have highest mutual similarity.  
 
-Luminance structure
+**Procedure:**
+1. Compute sum of similarities for each frame  
+2. Select starting frame as one with lowest global similarity  
+3. Iteratively append the most similar remaining frame  
+4. Continue until all frames are included  
 
-Texture patterns
+This reduces the combinatorial complexity compared to full graph search problems such as Hamiltonian Path or TSP.  
 
-Local contrast
+### 4. Video Reconstruction
+* Utilize original full-resolution frames  
+* Rebuild video using OpenCV at 30 FPS  
+* Save frame ordering to a log file (`frame_order.txt`)  
 
-Properties:
+---
 
-Score ranges from −1 to 1
+## Computational Complexity
 
-Higher value = more similar
+| Component | Complexity | Notes |
+|------------|-------------|-------|
+| Similarity Matrix | O(N²) | Parallelized across CPU cores |
+| Ordering Strategy | O(N²) | Lightweight greedy calculations |
+| Video Writing | O(N) | Disk I/O dependent |
 
-If SSIM fails for any frame pair, normalized cross-correlation is used as fallback.
+For **N = 300**, the implementation remains efficient and scalable.
 
-Optimization:
+---
 
-Only compute upper triangle of the similarity matrix to avoid duplication
+## Setup and Installation
 
-Use multiprocessing to parallelize pairwise comparisons
+### Requirements
+* Python 3.11+  
 
-Store results in a symmetric similarity matrix of shape NxN
-
-3. Frame Ordering (Greedy Adjacency Strategy)
-
-Assumption:
-A continuous real-world motion should result in consecutive frames being most similar to each other.
-
-Steps:
-
-Compute total similarity of each frame with all others
-
-Choose the frame with the lowest total similarity as the starting frame
-
-Likely the beginning or end of the sequence
-
-Iteratively select the remaining frame with the highest similarity to the last chosen frame
-
-Continue until all frames are ordered
-
-This greedy technique dramatically reduces complexity compared to optimal Hamiltonian path search while maintaining strong alignment with natural video motion.
-
-4. Video Reconstruction
-
-Once ordering is complete:
-
-Frames are read at original resolution
-
-A new MP4 video is created at 30 FPS
-
-Frame indices are logged in frame_order.txt for verification
-
-Time Complexity Considerations
-Phase	Complexity	Notes
-Similarity Matrix	O(N²)	Parallelized across CPU cores
-Greedy Ordering	O(N²)	Lightweight operations
-Video Writing	O(N)	I/O bound
-
-For N = 300, the approach remains efficient and scalable for the evaluation system.
-
-Installation and Setup
-Dependencies
-
-Python 3.11+
-
-Required libraries:
-
+Install dependencies:
+```sh
 pip install opencv-python numpy scikit-image
+```
 
-Project Structure
-build.py                // Reconstruction
-extractframes.py        // Frame extraction
-frames/                 // Folder created during extraction
-reconstructed.mp4       // Output (provided separately in Drive)
-frame_order.txt         // Ordering output
+---
 
-How to Execute
-Step 1: Extract frames from shuffled video
+## Project Structure
+```
+build.py                # Reconstruction script
+extractframes.py        # Frame extraction script
+frames/                 # Directory for extracted frames
+frame_order.txt         # Generated order logs
+reconstructed.mp4       # Final output video
+```
 
-Place jumbled_video.mp4 in the project directory and run:
+---
 
+## How to Run
+
+### Step 1: Extract Frames
+Place `jumbled_video.mp4` in the project directory and run:
+```sh
 py -3.11 extractframes.py
+```
 
-
-Frames stored to:
-
+Extracted frames will be saved as:
+```
 frames/f0.jpg ... frames/f299.jpg
+```
 
-Step 2: Reconstruct the video
-
+### Step 2: Reconstruct Video
 Run:
-
+```sh
 py -3.11 build.py
+```
 
+**Outputs:**
+* Frames folder with 300 frames
+* reconstructed.mp4  
+* frame_order.txt  
+* Total execution time displayed in terminal  
 
-Outputs:
+---
 
-reconstructed.mp4
-
-frame_order.txt
-
-Execution time logs in terminal
+## Contributors
+* **Harnoor Arora**
