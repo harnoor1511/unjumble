@@ -1,16 +1,16 @@
-import os, cv2, numpy as np
+import os, cv2
 
 folder = "frames"
-out = "output.mp4"
+out = "reconstructed.mp4"
 fps = 30
 
 fs = sorted(os.listdir(folder))
-imgs = [cv2.imread(os.path.join(folder, x)) for x in fs if x.endswith(".jpg")]
+paths = [os.path.join(folder, f) for f in fs]
 
-h,w = imgs[0].shape[:2]
+first = cv2.imread(paths[0])
+h,w = first.shape[:2]
 v = cv2.VideoWriter(out, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w,h))
 
-o = np.random.permutation(len(imgs))
-for i in o:
-    v.write(imgs[i])
+for p in paths:
+    v.write(cv2.imread(p))
 v.release()
