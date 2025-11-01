@@ -1,14 +1,20 @@
 import cv2
+import os
 
-v = cv2.VideoCapture("jumbled_video.mp4")
+video_path = "jumbled_video.mp4"
+output_folder = "frames"
+
+os.makedirs(output_folder, exist_ok=True)
+
+cap = cv2.VideoCapture(video_path)
 n = 0
 
 while True:
-    r, f = v.read()
+    r, f = cap.read()
     if not r:
         break
-    cv2.imwrite("frame" + str(n) + ".jpg", f)
-    n = n + 1
+    cv2.imwrite(f"{output_folder}/f{n}.jpg", f)
+    n += 1
 
-v.release()
+cap.release()
 print("done")
