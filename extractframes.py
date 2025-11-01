@@ -7,8 +7,11 @@ output_folder = "frames"
 os.makedirs(output_folder, exist_ok=True)
 
 cap = cv2.VideoCapture(video_path)
-n = 0
+if not cap.isOpened():
+    print("video missing")
+    raise SystemExit
 
+n = 0
 while True:
     r, f = cap.read()
     if not r:
