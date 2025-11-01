@@ -1,6 +1,6 @@
 import cv2
 
-v = cv2.VideoCapture("video.mp4")
+v = cv2.VideoCapture("jumbled_video.mp4")
 n = 0
 
 while True:
