@@ -1,8 +1,5 @@
 # Jumbled Frames Reconstruction Challenge
 
-[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)]()
-[![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)]()
-
 ## Overview
 This project reconstructs a shuffled video by restoring its correct frame sequence using image similarity analysis and an optimized greedy approach. The input consists of 300 shuffled frames extracted from a continuous 10-second, 1080p, 30 FPS video. The objective is to reassemble the frames into the correct order without any prior reference to the original sequence.
 
@@ -10,13 +7,7 @@ This project reconstructs a shuffled video by restoring its correct frame sequen
 
 ## Problem Description
 * **Input:** 300 unordered frames extracted from a single-shot video  
-* **Output:** Reconstructed `.mp4` video with most likely correct temporal order  
-* **Constraints:** No scene cuts, no access to original sequence  
-* **Evaluation Metrics:**  
-  * Frame-wise similarity  
-  * Execution speed and performance optimization  
-  * Algorithm design and innovation  
-  * Code quality and documentation  
+* **Output:** Reconstructed `.mp4` video with correct temporal order   
 
 ---
 
